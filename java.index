@@ -1,0 +1,624 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Linking, Image, FlatList, ActivityIndicator } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+
+const Colors = {
+  primary: '#800020',
+  secondary: '#A52A2A',
+  accent: '#555555',
+  lightGray: '#D3D3D3',
+  background: '#F5F5F5',
+  text: '#333333',
+  white: '#FFFFFF',
+  darkGray: '#2D2D2D',
+};
+
+const HomeScreen = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Task Post - صورباهر</Text>
+      </View>
+
+      <ScrollView 
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.logoContainer}>
+          <Image 
+            source={require('./assets/IMG_1754.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
+        
+        <Text style={styles.welcomeText}>خدمات بريدية سريعة وموثوقة في بريد صورباهر</Text>
+        
+        <TouchableOpacity 
+          style={[styles.serviceCard, { backgroundColor: Colors.primary }]}
+          onPress={() => navigation.navigate('DeliveryRequest')}
+        >
+          <MaterialIcons name="local-shipping" size={32} color={Colors.white} />
+          <Text style={styles.serviceTitle}>طلب توصيل طرد/معاملة</Text>
+          <Text style={styles.serviceDescription}>نقوم بتوصيل طرودك ومعاملاتك بأسرع وقت</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.serviceCard, { backgroundColor: Colors.secondary }]}
+          onPress={() => navigation.navigate('BusinessService')}
+        >
+          <MaterialIcons name="business" size={32} color={Colors.white} />
+          <Text style={styles.serviceTitle}>خدمات الشركات</Text>
+          <Text style={styles.serviceDescription}>حلول بريدية متكاملة لشركتك</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.serviceCard, { backgroundColor: Colors.darkGray }]}
+          onPress={() => navigation.navigate('MyRequests')}
+        >
+          <MaterialIcons name="list-alt" size={32} color={Colors.white} />
+          <Text style={styles.serviceTitle}>طلباتي</Text>
+          <Text style={styles.serviceDescription}>تتبع حالة طلباتك السابقة</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>معلومات التواصل</Text>
+          <Text style={styles.infoText}>بريد صورباهر</Text>
+          <Text style={styles.infoText}>ساعات العمل: 8:00 صباحاً - 4:00 مساءً</Text>
+          
+          <TouchableOpacity 
+            style={styles.whatsappButton}
+            onPress={() => Linking.openURL('whatsapp://send?phone=0504670703')}
+          >
+            <MaterialIcons name="whatsapp" size={24} color={Colors.white} />
+            <Text style={styles.whatsappText}>تواصل عبر واتساب: 0504670703</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const DeliveryRequestScreen = () => {
+  const [pickupLocation, setPickupLocation] = React.useState('');
+  const [deliveryLocation, setDeliveryLocation] = React.useState('');
+  const [itemDescription, setItemDescription] = React.useState('');
+  const [notes, setNotes] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const handleSubmitRequest = () => {
+    if (!pickupLocation || !deliveryLocation || !itemDescription) {
+      Alert.alert('خطأ', 'الرجاء تعبئة جميع الحقول المطلوبة');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      setIsSubmitting(false);
+      Alert.alert(
+        'تم الإرسال بنجاح', 
+        'لقد تم إرسال طلب التوصيل الخاص بك، وسنقوم بالتواصل معك قريبًا لتأكيد التفاصيل',
+        [{ text: 'حسناً', onPress: () => {
+          setPickupLocation('');
+          setDeliveryLocation('');
+          setItemDescription('');
+          setNotes('');
+        }}]
+      );
+    }, 1500);
+  };
+
+  return (
+    <ScrollView 
+      style={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text style={styles.screenTitle}>طلب توصيل طرد/معاملة</Text>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>مكان الاستلام:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="مثال: منزلي، مكتب الشركة"
+          placeholderTextColor={Colors.lightGray}
+          value={pickupLocation}
+          onChangeText={setPickupLocation}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>مكان التسليم:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="مثال: مركز البريد، عنوان العمل"
+          placeholderTextColor={Colors.lightGray}
+          value={deliveryLocation}
+          onChangeText={setDeliveryLocation}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>وصف الطرد/المعاملة:</Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          placeholder="مثال: طرد يحتوي على كتب، أوراق تسجيل سيارة"
+          placeholderTextColor={Colors.lightGray}
+          value={itemDescription}
+          onChangeText={setItemDescription}
+          multiline
+          numberOfLines={4}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>ملاحظات إضافية (اختياري):</Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          placeholder="أوقات مفضلة للتسليم، تفاصيل إضافية"
+          placeholderTextColor={Colors.lightGray}
+          value={notes}
+          onChangeText={setNotes}
+          multiline
+          numberOfLines={3}
+        />
+      </View>
+
+      <TouchableOpacity 
+        style={styles.submitButton} 
+        onPress={handleSubmitRequest}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <ActivityIndicator color={Colors.white} />
+        ) : (
+          <Text style={styles.submitButtonText}>إرسال الطلب</Text>
+        )}
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const BusinessServiceScreen = () => {
+  const [companyName, setCompanyName] = React.useState('');
+  const [contactPerson, setContactPerson] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [serviceType, setServiceType] = React.useState('');
+  const [details, setDetails] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const handleSubmitRequest = () => {
+    if (!companyName || !contactPerson || !phone || !serviceType) {
+      Alert.alert('خطأ', 'الرجاء تعبئة الحقول المطلوبة');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      setIsSubmitting(false);
+      Alert.alert(
+        'تم الإرسال بنجاح', 
+        'لقد تم إرسال طلب الخدمة التجارية الخاص بكم، وسنتواصل معكم قريبًا',
+        [{ text: 'حسناً', onPress: () => {
+          setCompanyName('');
+          setContactPerson('');
+          setPhone('');
+          setServiceType('');
+          setDetails('');
+        }}]
+      );
+    }, 1500);
+  };
+
+  return (
+    <ScrollView 
+      style={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text style={styles.screenTitle}>خدمات الشركات</Text>
+      
+      <Text style={styles.businessDescription}>
+        نقدم حلولاً بريدية متخصصة للشركات والمؤسسات في بريد صورباهر، 
+        تشمل خدمات التوصيل الدورية، إدارة المراسلات، وحلول الشحن المتكاملة.
+      </Text>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>اسم الشركة:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="اسم الشركة أو المؤسسة"
+          placeholderTextColor={Colors.lightGray}
+          value={companyName}
+          onChangeText={setCompanyName}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>اسم المسؤول:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="اسم الشخص المسؤول"
+          placeholderTextColor={Colors.lightGray}
+          value={contactPerson}
+          onChangeText={setContactPerson}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>رقم الهاتف:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="رقم التواصل"
+          placeholderTextColor={Colors.lightGray}
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>نوع الخدمة المطلوبة:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="مثال: توصيل دوري، إدارة مراسلات، شحن"
+          placeholderTextColor={Colors.lightGray}
+          value={serviceType}
+          onChangeText={setServiceType}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>تفاصيل إضافية:</Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          placeholder="وصف الخدمة المطلوبة، التكرار، أي متطلبات خاصة"
+          placeholderTextColor={Colors.lightGray}
+          value={details}
+          onChangeText={setDetails}
+          multiline
+          numberOfLines={4}
+        />
+      </View>
+
+      <TouchableOpacity 
+        style={styles.submitButton} 
+        onPress={handleSubmitRequest}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <ActivityIndicator color={Colors.white} />
+        ) : (
+          <Text style={styles.submitButtonText}>إرسال الطلب</Text>
+        )}
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const MyRequestsScreen = () => {
+  const requests = [
+    { id: '1', type: 'توصيل طرد', date: '2023-07-15', status: 'مكتمل' },
+    { id: '2', type: 'خدمة تجارية', date: '2023-07-18', status: 'قيد التنفيذ' },
+    { id: '3', type: 'توصيل معاملة', date: '2023-07-20', status: 'معلق' },
+  ];
+
+  const renderRequestItem = ({ item }) => (
+    <View style={styles.requestCard}>
+      <View style={styles.requestHeader}>
+        <Text style={styles.requestType}>{item.type}</Text>
+        <Text style={[
+          styles.requestStatus,
+          item.status === 'مكتمل' ? styles.completed : 
+          item.status === 'قيد التنفيذ' ? styles.inProgress : 
+          styles.pending
+        ]}>
+          {item.status}
+        </Text>
+      </View>
+      
+      <View style={styles.requestDetails}>
+        <Text style={styles.requestDetail}><Text style={styles.detailLabel}>رقم الطلب:</Text> {item.id}</Text>
+        <Text style={styles.requestDetail}><Text style={styles.detailLabel}>التاريخ:</Text> {item.date}</Text>
+      </View>
+      
+      <TouchableOpacity style={styles.viewDetailsButton}>
+        <Text style={styles.viewDetailsText}>عرض التفاصيل</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <ScrollView 
+      style={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text style={styles.screenTitle}>طلباتي</Text>
+      
+      <Text style={styles.infoText}>
+        قائمة بطلباتك السابقة في بريد صورباهر. يمكنك تتبع حالة كل طلب والتفاصيل المرتبطة به.
+      </Text>
+
+      <FlatList
+        data={requests}
+        renderItem={renderRequestItem}
+        keyExtractor={item => item.id}
+        scrollEnabled={false}
+        contentContainerStyle={styles.flatListContainer}
+      />
+    </ScrollView>
+  );
+};
+
+const Stack = createStackNavigator();
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: Colors.primary,
+          },
+          headerTintColor: Colors.white,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+          headerBackTitleVisible: false,
+        }}
+      >
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen} 
+          options={{ title: 'Task Post - صورباهر' }} 
+        />
+        <Stack.Screen 
+          name="DeliveryRequest" 
+          component={DeliveryRequestScreen} 
+          options={{ title: 'طلب توصيل' }} 
+        />
+        <Stack.Screen 
+          name="BusinessService" 
+          component={BusinessServiceScreen} 
+          options={{ title: 'خدمات الشركات' }} 
+        />
+        <Stack.Screen 
+          name="MyRequests" 
+          component={MyRequestsScreen} 
+          options={{ title: 'طلباتي' }} 
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  header: {
+    backgroundColor: Colors.primary,
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: Colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  headerTitle: {
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  content: {
+    padding: 20,
+    paddingBottom: 30,
+  },
+  flatListContainer: {
+    paddingBottom: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  logo: {
+    width: 200,
+    height: 150,
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: 25,
+    lineHeight: 28,
+  },
+  serviceCard: {
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 15,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: Colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  serviceTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.white,
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  serviceDescription: {
+    fontSize: 15,
+    color: Colors.white,
+    textAlign: 'center',
+    opacity: 0.9,
+  },
+  infoCard: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 15,
+    elevation: 2,
+    shadowColor: Colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.primary,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  infoText: {
+    fontSize: 16,
+    color: Colors.text,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  businessDescription: {
+    fontSize: 16,
+    color: Colors.text,
+    marginBottom: 20,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  whatsappButton: {
+    flexDirection: 'row',
+    backgroundColor: '#25D366',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  whatsappText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  screenTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.primary,
+    marginBottom: 25,
+    textAlign: 'center',
+    paddingTop: 15,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    color: Colors.text,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: 8,
+    padding: 14,
+    fontSize: 16,
+    backgroundColor: Colors.white,
+    color: Colors.text,
+  },
+  multilineInput: {
+    height: 120,
+    textAlignVertical: 'top',
+  },
+  submitButton: {
+    backgroundColor: Colors.primary,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+    elevation: 2,
+    shadowColor: Colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  submitButtonText: {
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  requestCard: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 15,
+    elevation: 2,
+    shadowColor: Colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  requestHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  requestType: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.primary,
+  },
+  requestStatus: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  completed: {
+    backgroundColor: '#E8F5E9',
+    color: '#2E7D32',
+  },
+  inProgress: {
+    backgroundColor: '#FFF8E1',
+    color: '#F57F17',
+  },
+  pending: {
+    backgroundColor: '#FFEBEE',
+    color: '#C62828',
+  },
+  requestDetails: {
+    marginBottom: 15,
+  },
+  requestDetail: {
+    fontSize: 16,
+    color: Colors.text,
+    marginBottom: 5,
+  },
+  detailLabel: {
+    fontWeight: 'bold',
+  },
+  viewDetailsButton: {
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+  },
+  viewDetailsText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
+});
+
+export default App;
